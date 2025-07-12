@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "ts-node server/index.ts",
     "start": "node dist/index.js",
-    "build": "esbuild server/index.ts --bundle --platform=node --outfile=dist/index.js"
+    "build": "npx esbuild server/index.ts --bundle --platform=node --outfile=dist/index.js"
+
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
