@@ -4,30 +4,44 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
 
-
 const app = express();
 
+const allowedOrigins = [
+  "https://smartflows.netlify.app",
+  // Add other allowed origins if needed
+  // "http://localhost:3000" // for local development
+];
 
-const allowedOrigins = ["https://smartflows.netlify.app"];
+// Enhanced CORS configuration
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+};
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+// Apply CORS middleware to all routes
+app.use(cors(corsOptions));
 
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
 
+// Standard middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+// Request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -61,32 +75,36 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    // Include CORS headers in error responses
+    res.header('Access-Control-Allow-Origin', _req.headers.origin || allowedOrigins[0]);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
     res.status(status).json({ message });
-    throw err;
+    if (status === 500) {
+      console.error(err);
+    }
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Vite setup for development
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Server startup
   const port = 5000;
   server.listen({
     port,
     host: "0.0.0.0",
     reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    log(`Server running on port ${port}`);
+    log(`Allowed origins: ${allowedOrigins.join(', ')}`);
   });
 })();
