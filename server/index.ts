@@ -8,7 +8,8 @@ import cors from "cors";
 const app = express();
 
 
-const allowedOrigins = ["https://frolicking-jalebi-a35e3a.netlify.app"];
+const allowedOrigins = ["https://smartflows.netlify.app"];
+
 
 app.use(
   cors({
