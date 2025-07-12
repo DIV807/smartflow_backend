@@ -1,0 +1,9 @@
+# Prevent frontend files from being added to backend repo
+client/
+attached_assets/
+shared/
+components.json
+vite.config.ts
+tailwind.config.ts
+tsconfig.json
+index.html
