@@ -3,7 +3,7 @@
     "target": "ES2020",
     "module": "ES2020",
     "outDir": "dist",
-    "rootDir": "server",
+    "rootDir": ".",                           // ✅ Changed from "server" to "."
     "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
