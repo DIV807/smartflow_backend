@@ -9,7 +9,10 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",                // Required for path aliasing
+    "paths": {
+      "@shared/*": ["shared/*"]
   },
   "include": ["server/**/*", "shared/**/*"]
 }

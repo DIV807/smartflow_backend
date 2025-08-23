@@ -7,3 +7,5 @@ vite.config.ts
 tailwind.config.ts
 tsconfig.json
 index.html
+node_modules/
+
