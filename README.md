@@ -1,1 +1,1 @@
-This is the backend.
+This is the backend of SmartFlow platform.
